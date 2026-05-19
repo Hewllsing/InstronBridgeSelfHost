@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="InstronBridgeSelfHost.csproj" Id="d83d7a51-ff3a-43f2-9348-b563194c20d2">
+    <Platform Solution="*|x86" Project="x86" />
+  </Project>
+</Solution>
