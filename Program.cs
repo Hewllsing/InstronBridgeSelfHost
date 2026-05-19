@@ -17,8 +17,6 @@ namespace InstronBridgeSelfHost
             // Inicia o servidor OWIN
             using (WebApp.Start<Startup>(url: baseAddress))
             {
-                Logger.Info("DEU CERTO!");
-
                 Console.WriteLine("==========================================");
                 Console.WriteLine(" Instron Bridge API Self Host iniciado");
                 Console.WriteLine("==========================================");
