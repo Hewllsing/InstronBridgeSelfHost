@@ -5,6 +5,7 @@ using InstronBridgeSelfHost.Callbacks;
 using InstronBridgeSelfHost.Models;
 using System;
 using System.Threading.Tasks;
+using System.ServiceModel;
 
 namespace InstronBridgeSelfHost.Services
 {
@@ -124,10 +125,23 @@ namespace InstronBridgeSelfHost.Services
             if (_bluehillApi == null)
                 throw new Exception("Bluehill não está conectado.");
 
-            return await _bluehillApi.GetResultsAndStatisticsTableData(
-                tableNumber,
-                EnumResultsAndStatisticsTable.ResultsAndStatistics
-            );
+            try
+            {
+                return await _bluehillApi.GetResultsAndStatisticsTableData(
+                    tableNumber,
+                    EnumResultsAndStatisticsTable.ResultsOnly
+                );
+            }
+            catch (System.ServiceModel.ProtocolException)
+            {
+                InstronServiceState.IsConnected = false;
+                InstronServiceState.LastStatusMessage =
+                    "Canal WCF fechado pelo Bluehill. É necessário reconectar.";
+
+                Disconnect();
+
+                throw new Exception("A conexão com o Bluehill foi encerrada. Faça /connect novamente e tente /results outra vez.");
+            }
         }
 
         /// <summary>
