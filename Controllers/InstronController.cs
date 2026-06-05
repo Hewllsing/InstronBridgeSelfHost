@@ -38,6 +38,8 @@ namespace InstronBridgeSelfHost.Controllers
         [Route("health")]
         public IHttpActionResult Health()
         {
+            _service.RefreshConnectionState();
+
             return Ok(new
             {
                 status = "online",
@@ -83,15 +85,11 @@ namespace InstronBridgeSelfHost.Controllers
         /// </summary>
         [HttpGet]
         [Route("state")]
-        public IHttpActionResult State()
+        public async Task<IHttpActionResult> State()
         {
             try
             {
-                // Valida se existe conexão ativa
-                if (!_service.IsConnected)
-                    return BadRequest("Bluehill não está conectado.");
-
-                var state = _service.GetState();
+                var state = await _service.GetStateAsync();
 
                 return Ok(new
                 {
@@ -190,10 +188,6 @@ namespace InstronBridgeSelfHost.Controllers
         {
             try
             {
-                // Verifica conexão ativa
-                if (!_service.IsConnected)
-                    return BadRequest("Bluehill não está conectado.");
-
                 var data = await _service.GetResultsAsync(tableNumber);
 
                 return Ok(new
@@ -201,6 +195,23 @@ namespace InstronBridgeSelfHost.Controllers
                     tableNumber,
                     data
                 });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
+        [HttpGet]
+        [Route("results/formatted")]
+        public async Task<IHttpActionResult> ResultsFormatted(int tableNumber = 1)
+        {
+            try
+            {
+                var result = await _service.GetFormattedResultsAsync(tableNumber);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -223,12 +234,9 @@ namespace InstronBridgeSelfHost.Controllers
         {
             _service.Disconnect();
 
-            // Limpa estados guardados da aplicação
-            InstronServiceState.Clear();
-
             return Ok(new
             {
-                message = "Conexão encerrada."
+                message = InstronServiceState.LastStatusMessage
             });
         }
 
@@ -365,10 +373,6 @@ namespace InstronBridgeSelfHost.Controllers
         {
             try
             {
-                // Verifica conexão ativa
-                if (!_service.IsConnected)
-                    return BadRequest("Bluehill não está conectado.");
-
                 EnumUnits parsedUnit;
 
                 // Converte a unidade recebida em texto para Enum

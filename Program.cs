@@ -28,6 +28,8 @@ namespace InstronBridgeSelfHost
                 Console.WriteLine(baseAddress + "api/instron/health");
                 Console.WriteLine(baseAddress + "api/instron/connect");
                 Console.WriteLine(baseAddress + "api/instron/state");
+                Console.WriteLine(baseAddress + "api/instron/results?tableNumber=1");
+                Console.WriteLine(baseAddress + "api/instron/results/formatted?tableNumber=1");
                 Console.WriteLine();
                 Console.WriteLine("Pressione ENTER para encerrar...");
                 Console.WriteLine();

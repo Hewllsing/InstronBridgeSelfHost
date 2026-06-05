@@ -2,6 +2,7 @@ using Instron.Bluehill.API.BluehillAPI.Enums;
 using Instron.Bluehill.API.BluehillAPI.Interfaces;
 using InstronBridgeSelfHost.InstronLogs;
 using InstronBridgeSelfHost.Models;
+using InstronBridgeSelfHost.Services;
 
 namespace InstronBridgeSelfHost.Callbacks
 {
@@ -29,9 +30,7 @@ namespace InstronBridgeSelfHost.Callbacks
         /// </summary>
         public void OnBluehillClosing()
         {
-            InstronServiceState.IsConnected = false;
-            InstronServiceState.LastState = "BluehillClosed";
-            InstronServiceState.LastStatusMessage = "Bluehill foi encerrado.";
+            InstronService.MarkBluehillClosedByCallback();
 
             Logger.Info("Bluehill foi encerrado. Estado da conexão atualizado para desconectado.");
         }
