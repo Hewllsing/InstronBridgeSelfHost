@@ -294,9 +294,11 @@ Não precisa de body.
 }
 ```
 
-### Observação
+### Observacao
 
-Este endpoint deve ser chamado antes dos endpoints que dependem do Bluehill.
+Este endpoint pode ser usado para forcar a abertura/conexao manual durante testes.
+No fluxo operacional, os endpoints `/state`, `/results`, `/results/formatted` e `/measurement`
+tentam conectar automaticamente ao Bluehill quando ainda nao existe uma sessao valida.
 
 ---
 
@@ -501,7 +503,45 @@ pode significar que:
 
 ---
 
-## 9.8 Save Sample
+## 9.8 Results Formatted
+
+Obtem os mesmos resultados da tabela, mas devolve os dados em formato pronto para consumo por uma tabela no frontend.
+
+### Request
+
+```http
+GET /results/formatted?tableNumber=1
+```
+
+### Exemplo
+
+```http
+GET http://localhost:9000/api/instron/results/formatted?tableNumber=1
+```
+
+### Response
+
+```json
+{
+  "tableNumber": 1,
+  "headers": ["Specimen", "Peak Load", "Extension"],
+  "rows": [
+    {
+      "Specimen": 1,
+      "Peak Load": 520.4,
+      "Extension": 12.8
+    }
+  ]
+}
+```
+
+### Observacao
+
+Este endpoint tambem tenta conectar/reconectar automaticamente ao Bluehill antes de consultar a tabela.
+
+---
+
+## 9.9 Save Sample
 
 Guarda a amostra atual.
 
@@ -540,7 +580,7 @@ Se o `filePath` for nulo, o Bluehill pode usar o caminho padrão.
 
 ---
 
-## 9.9 Close Sample
+## 9.10 Close Sample
 
 Fecha a amostra atualmente aberta no Bluehill.
 
@@ -571,7 +611,7 @@ Não precisa de body.
 
 ---
 
-## 9.10 Measurement
+## 9.11 Measurement
 
 Obtém uma medição específica do Bluehill.
 
@@ -603,9 +643,10 @@ O nome da medição e a unidade precisam existir no Bluehill.
 
 ---
 
-## 9.11 Disconnect
+## 9.12 Disconnect
 
-Fecha a conexão da API com o Bluehill.
+Fecha a conexao WCF da API e tenta encerrar o processo Bluehill.
+Se a janela nao responder, o processo e finalizado para evitar sessoes presas no Task Manager.
 
 ### Request
 
@@ -627,17 +668,17 @@ Não precisa de body.
 
 ```json
 {
-  "message": "Conexão encerrada."
+  "message": "Conexao encerrada e processo Bluehill finalizado."
 }
 ```
 
 ### Observação
 
-Este endpoint limpa a conexão da API. Ele não deve ser tratado como botão obrigatório para fechar o Bluehill.
+Este endpoint e util para testes e manutencao. No frontend operacional, nao e necessario expor botao de conectar/desconectar.
 
 ---
 
-## 9.12 Teste
+## 9.13 Teste
 
 Endpoint simples para testar envio de JSON.
 
@@ -678,7 +719,7 @@ POST http://localhost:9000/api/instron/teste
 
 ---
 
-## 9.13 Teste Logs
+## 9.14 Teste Logs
 
 Endpoint usado para testar a escrita de logs.
 
@@ -722,22 +763,20 @@ Fluxo básico:
 ```text
 1. Abrir InstronBridgeSelfHost.exe
 2. GET /health
-3. POST /connect
-4. GET /state
-5. POST /create-sample
-6. POST /start-test
-7. GET /results
-8. POST /save-sample
-9. POST /close-sample
+3. GET /state
+4. POST /create-sample
+5. POST /start-test
+6. GET /results/formatted?tableNumber=1
+7. POST /save-sample
+8. POST /close-sample
 ```
 
 Para testes sem movimentar a máquina:
 
 ```text
 1. Abrir InstronBridgeSelfHost.exe
-2. POST /connect
-3. Abrir manualmente no Bluehill uma amostra já existente com resultados
-4. GET /results?tableNumber=1
+2. Abrir manualmente no Bluehill uma amostra já existente com resultados
+3. GET /results/formatted?tableNumber=1
 ```
 
 ---
